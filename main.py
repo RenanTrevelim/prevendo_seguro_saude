@@ -1,51 +1,40 @@
 import streamlit as st
 import numpy as np
-import pandas as pd
-import joblib
-import xgboost as xgb
+from src.predict import predict
 
 st.set_page_config(
-    page_title='Previsão de Seguro de Saúde',
-    layout='centered',
+    page_title="Previsão de Seguro de Saúde",
+    layout="centered",
 )
 
-st.title('Previsão de Seguro de Saúde')
+st.title("Previsão de Seguro de Saúde")
 
-# Importando o modelo de ML treinado
-modelo = joblib.load('modelo.pkl')
+sexo_label = st.selectbox("Sexo:", options=["Masculino", "Feminino"])
+filhos = st.number_input("Número de Filhos:", min_value=0, max_value=10, value=0, step=1)
+fumante_label = st.selectbox("É fumante?", options=["Sim", "Não"])
+idade = st.number_input("Idade:", min_value=18, max_value=100, value=18, step=1)
+imc = st.number_input("IMC:", min_value=10.0, max_value=60.0, value=25.0, step=0.1)
+regiao = st.selectbox(
+    "Região:",
+    options=["southwest", "southeast", "northwest", "northeast"]
+)
 
-# Inserindo as informações do usuário
-sexo = st.selectbox('Sexo:', options=['Masculino', 'Feminino'])
-sexo = 1 if sexo =='Masculino' else 0
-
-filhos = st.number_input('Número de Filhos:', min_value=0, max_value=5, value=0, step=1)
-
-fumante = st.selectbox('É Fumante?', options=['Sim', 'Não'])
-fumante = 1 if fumante =='Sim' else 0
-
-log_idade = st.number_input('Idade :', min_value=18.0, max_value=100.0, value=18.0, step=1.0)
-
-log_imc = st.number_input('IMC :', min_value=10.0, max_value=50.0, value=10.0, step=1.0)
-
-# Botão para enviar os dados e fazer a previsão
-enviar = st.button('Prever Custo do Seguro')
-
+enviar = st.button("Prever custo do seguro")
 
 if enviar:
-    if filhos == '' or log_idade == '' or log_imc == '':
-        st.warning('Por favor, preencha todos os campos antes de enviar.')
-    else:
+    sexo = "male" if sexo_label == "Masculino" else "female"
+    fumante = "yes" if fumante_label == "Sim" else "no"
 
-        entrada_df = pd.DataFrame([{
-                        "sexo": sexo,
-                        "filhos": filhos,
-                        "fumante": fumante,
-                        "log_idade": np.log(log_idade),
-                        "log_imc": np.log(log_imc),
-                    }])
+    dados = [{
+        "idade": idade,
+        "imc": imc,
+        "sexo": sexo,
+        "fumante": fumante,
+        "regiao": regiao,
+        "filhos": filhos,
+    }]
 
-        dm = xgb.DMatrix(entrada_df)
+    previsao = predict(dados)
+    valor_real = np.exp(previsao[0])
 
-        previsao = modelo.predict(dm)
-
-        st.write(f'O valor previsto do seguro de saúde é: R$ {np.exp(previsao[0]):.2f}')
+    st.success(f"Valor previsto do seguro: R$ {valor_real:.2f}")
