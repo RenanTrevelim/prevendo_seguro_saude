@@ -1,12 +1,12 @@
 # 💰 Previsão de Valor de Seguro de Saúde  
-### Machine Learning com Scikit-Learn e Spark ML + Deploy com Streamlit
+### Machine Learning com Scikit-Learn, XGBoost, Spark ML e Deploy com Streamlit
 
-Este projeto apresenta a construção e comparação de modelos de regressão para previsão do valor de seguro de saúde, utilizando duas abordagens distintas:
+Este projeto apresenta um fluxo completo de análise de dados e modelagem preditiva para estimar o valor de seguros de saúde, passando por:
 
-- ✅ **Scikit-Learn (ambiente local / single-machine)**
-- ✅ **Spark MLlib (ambiente distribuído / Big Data)**
-
-O modelo disponibilizado na aplicação web foi treinado com **Scikit-Learn** e exportado para produção.
+- 🔍 Análise Exploratória de Dados (EDA)  
+- 🤖 Modelagem com Scikit-Learn e XGBoost  
+- ⚡ Implementação com Spark ML (Big Data)  
+- 🚀 Deploy de aplicação interativa com Streamlit  
 
 ---
 
@@ -27,69 +27,134 @@ Prever o valor do seguro de saúde com base nas seguintes variáveis:
 - Sexo  
 - Número de filhos  
 - Status de fumante  
+- Região  
 
 ---
 
-## 🧠 Modelagem
+## 🔍 1. Análise Exploratória de Dados (EDA)
 
-### 🔹 1. Implementação com Scikit-Learn
+Nesta etapa foram realizadas:
 
-- Tratamento e transformação de dados  
-- Engenharia de variáveis  
-- Codificação de variáveis categóricas  
-- Transformação logarítmica da variável alvo  
-- Treinamento de modelo de regressão  
-- Avaliação com métricas (R², MAE, RMSE)  
-- Serialização do modelo (`modelo.pkl`)  
-- Modelo utilizado no deploy  
+- Análise de distribuição das variáveis  
+- Identificação de assimetria nos dados  
+- Avaliação de correlação entre variáveis  
+- Detecção de outliers  
 
-📓 Notebook de treinamento:  
-`ML_Treino_Regressão_Valor_Segura_de_Saúde.ipynb`
+📓 Notebook:  
+`Valor_Seguro_de_Saúde_EDA.ipynb`
+
+### 🔎 Insights principais
+
+- A variável `valor_seguro` apresenta alta assimetria  
+- **Fumantes possuem valores significativamente mais elevados**  
+- **Idade é uma das variáveis com maior impacto no aumento do custo**  
+- IMC também contribui, mas com menor influência comparado a idade e tabagismo  
+
+Diante disso, foi aplicada uma **transformação logarítmica na variável alvo**, visando melhorar o comportamento da distribuição para modelagem.
 
 ---
 
-### 🔹 2. Implementação com Spark ML (PySpark)
+## 🧠 2. Modelagem com Machine Learning
+
+### 🔹 Abordagem com Scikit-Learn + XGBoost
+
+Etapas realizadas:
+
+- Separação entre variáveis explicativas (X) e variável alvo (y)  
+- Aplicação de transformação logarítmica na variável alvo  
+- Engenharia e preparação das variáveis  
+- Treinamento do modelo utilizando **XGBoost**  
+- Avaliação com métricas de regressão (R², RMSE, MAE)  
+
+📓 Notebook:  
+`ML_Regressão_Valor_Seguro_de_Saúde.ipynb`
+
+---
+
+### 🔹 Pipeline de Pré-processamento
+
+Foi construída uma pipeline responsável por padronizar os dados antes da modelagem:
+
+- Transformação logarítmica das variáveis numéricas (`idade`, `imc`)  
+- Codificação de variáveis categóricas (`sexo`, `fumante`, `regiao`) utilizando One-Hot Encoding  
+- Garantia de consistência na estrutura dos dados de entrada  
+
+Essa pipeline permite reutilizar exatamente o mesmo tratamento aplicado no treino durante a predição.
+
+---
+
+### 🔹 Treinamento e Salvamento do Modelo
+
+Após o preprocessamento:
+
+1. Os dados transformados foram utilizados para treinar o modelo XGBoost  
+2. O modelo foi ajustado para aprender a relação entre as variáveis e o valor do seguro  
+3. Tanto o preprocessamento quanto o modelo foram serializados para uso em produção  
+
+Arquivos gerados:
+
+- `models/preprocessamento.pkl`  
+- `models/modelo_xgb.pkl`  
+
+---
+
+### 🔹 Abordagem com Spark ML (PySpark)
+
+Também foi implementada uma versão utilizando Spark para simular ambiente de dados em larga escala:
 
 - Criação de pipeline distribuído  
-- Manipulação de dados em ambiente Spark  
+- Manipulação de dados em Spark  
 - Treinamento com MLlib  
-- Comparação de desempenho com abordagem local  
+- Comparação com modelo local  
 
-📓 Notebook Spark:  
+📓 Notebook:  
 `Spark - ML Regressão (valor seguro).ipynb`
 
 ---
 
 ## 📊 Resultados
 
-*(Valores utilizando Função Logarítmica)*
+*(Valores com variável alvo em escala logarítmica)*
 
-**Modelo Scikit-Learn - XGBoost:**
+**Modelo XGBoost:**
 
-- R²: 0.87  
-- RMSE: 0.43  
-- MAE: 0.19  
+- R²: 0.88  
+- RMSE: 0.32 
+- MAE: 0.18  
 
-A aplicação da transformação logarítmica reduziu a heterocedasticidade e melhorou a estabilidade do modelo.
 
 ---
 
-## 🚀 Deploy da Aplicação
+## ⚙️ 3. Pipeline de Produção
 
-A aplicação foi desenvolvida em **Streamlit**, permitindo que o usuário insira dados e receba a previsão em tempo real.
+O fluxo de predição foi estruturado da seguinte forma:
 
-Arquivo principal:  
+1. Recebimento de dados brutos do usuário  
+2. Aplicação do preprocessamento (`preprocessamento.pkl`)  
+3. Conversão para formato `DMatrix`  
+4. Predição com modelo XGBoost (`modelo_xgb.pkl`)  
+5. Aplicação da função `exp()` para retornar ao valor original  
+
+---
+
+## 🚀 4. Deploy com Streamlit
+
+A aplicação permite que o usuário insira os dados e visualize a previsão em tempo real.
+
+Arquivo principal:
+
 `main.py`
 
 ### 🔄 Fluxo da aplicação
 
-1. Usuário insere dados no formulário  
-2. Aplicação realiza transformação logarítmica das variáveis  
-3. Modelo treinado com Scikit-Learn é carregado via `joblib`  
-4. Previsão é realizada  
-5. Resultado é convertido para escala original e exibido  
+1. Usuário preenche formulário  
+2. Dados são enviados para a função de predição  
+3. Pipeline transforma os dados  
+4. Modelo realiza a previsão  
+5. Resultado é exibido ao usuário  
 
 ---
+
 
 ## ▶️ Como Executar o Projeto
 
@@ -113,13 +178,14 @@ streamlit run main.py
 ```
 
 ---
-
 ## 🏗 Diferenciais Técnicos
 
-- Comparação entre ambiente single-machine e distribuído  
-- Aplicação de transformação logarítmica para estabilização da variância  
-- Pipeline completo: tratamento → treino → avaliação → serialização → deploy  
-- Estrutura preparada para escalabilidade  
+- Pipeline completo de ML (EDA → Modelagem → Deploy)  
+- Separação entre preprocessamento e modelo  
+- Uso de XGBoost com DMatrix  
+- Aplicação de transformação logarítmica  
+- Integração com Streamlit  
+- Comparação entre ambiente local e distribuído (Spark)  
 
 ---
 
@@ -139,4 +205,5 @@ streamlit run main.py
 
 ## 📷 Preview da Aplicação
 
-<img width="717" height="586" alt="Preview da aplicação" src="https://github.com/user-attachments/assets/db306db8-528b-4885-ba64-8060932e10d7" />
+<img width="720" height="652" alt="image" src="https://github.com/user-attachments/assets/7db1c2c9-68ff-473d-8cb4-48db236dbcf4" />
+
