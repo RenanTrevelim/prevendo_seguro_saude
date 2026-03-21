@@ -19,6 +19,22 @@ COLUNAS_FINAIS = [
 ]
 
 def predict(dados):
+    """
+    Realiza a predição a partir dos dados de entrada.
+
+    Converte os dados em DataFrame, aplica o preprocessamento,
+    transforma no formato esperado pelo modelo e retorna as previsões.
+
+    Parâmetros
+    ----------
+    dados : dict ou list
+        Dados de entrada com as features do modelo.
+
+    Retorna
+    -------
+    numpy.ndarray
+        Previsões do modelo.
+    """
     df = pd.DataFrame(dados)
     df = df[COLUNAS_ENTRADA]
 

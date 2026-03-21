@@ -1,26 +1,38 @@
-# 💰 Previsão de Valor de Seguro de Saúde  
-### Machine Learning com Scikit-Learn, XGBoost, Spark ML e Deploy com Streamlit
+# 💰 Previsão de Valor de Seguro de Saúde
+### Machine Learning End-to-End com XGBoost, Spark e Deploy com Streamlit
 
-Este projeto apresenta um fluxo completo de análise de dados e modelagem preditiva para estimar o valor de seguros de saúde, passando por:
+Este projeto apresenta um pipeline completo de **Ciência de Dados**, desde a análise exploratória até o deploy de um modelo preditivo em produção.
+
+🔗 O objetivo é estimar o valor de seguros de saúde com base em características individuais, simulando um cenário real de precificação.
+
+---
+
+## 🚀 Visão Geral do Projeto
+
+O projeto cobre todas as etapas de um fluxo de Machine Learning:
 
 - 🔍 Análise Exploratória de Dados (EDA)  
-- 🤖 Modelagem com Scikit-Learn e XGBoost  
-- ⚡ Implementação com Spark ML (Big Data)  
+- 🧠 Modelagem preditiva com Scikit-Learn e XGBoost  
+- ⚡ Processamento distribuído com Spark (PySpark)  
 - 🚀 Deploy de aplicação interativa com Streamlit  
 
 ---
 
 ## 📌 Contexto do Problema
 
-A precificação de seguros de saúde depende de fatores individuais como idade, IMC e hábitos de risco. Modelos preditivos auxiliam na estimativa de valores mais justos e na análise de risco.
+A precificação de seguros de saúde depende de fatores como idade, IMC e hábitos de risco. Modelos preditivos permitem:
 
-Este projeto simula um cenário real de precificação baseada em variáveis demográficas e comportamentais.
+- Estimar valores mais precisos  
+- Avaliar risco de clientes  
+- Apoiar decisões estratégicas  
+
+Este projeto simula esse cenário utilizando dados demográficos e comportamentais.
 
 ---
 
 ## 🎯 Objetivo
 
-Prever o valor do seguro de saúde com base nas seguintes variáveis:
+Prever o valor do seguro (`charges`) com base nas variáveis:
 
 - Idade  
 - IMC  
@@ -31,40 +43,41 @@ Prever o valor do seguro de saúde com base nas seguintes variáveis:
 
 ---
 
-## 🔍 1. Análise Exploratória de Dados (EDA)
+## 🔍 Análise Exploratória de Dados (EDA)
 
-Nesta etapa foram realizadas:
+A etapa de EDA teve como foco entender o comportamento dos dados e identificar padrões relevantes.
 
-- Análise de distribuição das variáveis  
-- Identificação de assimetria nos dados  
-- Avaliação de correlação entre variáveis  
-- Detecção de outliers  
+### Principais análises:
+- Distribuição das variáveis  
+- Correlação entre features  
+- Identificação de outliers  
+- Avaliação de assimetria  
 
 📓 Notebook:  
 `Valor_Seguro_de_Saúde_EDA.ipynb`
 
-### 🔎 Insights principais
+### 🔎 Principais insights
 
-- A variável `valor_seguro` apresenta alta assimetria  
-- **Fumantes possuem valores significativamente mais elevados**  
-- **Idade é uma das variáveis com maior impacto no aumento do custo**  
-- IMC também contribui, mas com menor influência comparado a idade e tabagismo  
+- A variável alvo apresenta **alta assimetria**  
+- **Fumantes possuem custos significativamente maiores**  
+- **Idade é um dos fatores mais relevantes**  
+- IMC possui influência moderada  
 
-Diante disso, foi aplicada uma **transformação logarítmica na variável alvo**, visando melhorar o comportamento da distribuição para modelagem.
+📌 Foi aplicada uma **transformação logarítmica na variável alvo** para melhorar a modelagem.
 
 ---
 
-## 🧠 2. Modelagem com Machine Learning
+## 🧠 Modelagem
 
-### 🔹 Abordagem com Scikit-Learn + XGBoost
+### 🔹 Abordagem Principal (XGBoost)
 
-Etapas realizadas:
+Etapas:
 
-- Separação entre variáveis explicativas (X) e variável alvo (y)  
-- Aplicação de transformação logarítmica na variável alvo  
-- Engenharia e preparação das variáveis  
-- Treinamento do modelo utilizando **XGBoost**  
-- Avaliação com métricas de regressão (R², RMSE, MAE)  
+- Preparação dos dados  
+- Engenharia de features  
+- Aplicação de transformação logarítmica  
+- Treinamento com XGBoost  
+- Avaliação com métricas de regressão  
 
 📓 Notebook:  
 `ML_Regressão_Valor_Seguro_de_Saúde.ipynb`
@@ -73,39 +86,30 @@ Etapas realizadas:
 
 ### 🔹 Pipeline de Pré-processamento
 
-Foi construída uma pipeline responsável por padronizar os dados antes da modelagem:
+Foi criada uma pipeline para garantir consistência entre treino e produção:
 
-- Transformação logarítmica das variáveis numéricas (`idade`, `imc`)  
-- Codificação de variáveis categóricas (`sexo`, `fumante`, `regiao`) utilizando One-Hot Encoding  
-- Garantia de consistência na estrutura dos dados de entrada  
-
-Essa pipeline permite reutilizar exatamente o mesmo tratamento aplicado no treino durante a predição.
+- Transformação log em variáveis numéricas  
+- One-Hot Encoding para variáveis categóricas  
+- Padronização do formato de entrada  
 
 ---
 
-### 🔹 Treinamento e Salvamento do Modelo
+### 🔹 Persistência do Modelo
 
-Após o preprocessamento:
-
-1. Os dados transformados foram utilizados para treinar o modelo XGBoost  
-2. O modelo foi ajustado para aprender a relação entre as variáveis e o valor do seguro  
-3. Tanto o preprocessamento quanto o modelo foram serializados para uso em produção  
-
-Arquivos gerados:
+Arquivos salvos para uso em produção:
 
 - `models/preprocessamento.pkl`  
 - `models/modelo_xgb.pkl`  
 
 ---
 
-### 🔹 Abordagem com Spark ML (PySpark)
+### ⚡ Versão com Spark (Big Data)
 
-Também foi implementada uma versão utilizando Spark para simular ambiente de dados em larga escala:
+Implementação alternativa utilizando PySpark:
 
-- Criação de pipeline distribuído  
-- Manipulação de dados em Spark  
+- Pipeline distribuído  
+- Processamento em larga escala  
 - Treinamento com MLlib  
-- Comparação com modelo local  
 
 📓 Notebook:  
 `Spark - ML Regressão (valor seguro).ipynb`
@@ -114,78 +118,86 @@ Também foi implementada uma versão utilizando Spark para simular ambiente de d
 
 ## 📊 Resultados
 
-*(Valores com variável alvo em escala logarítmica)*
+*(com variável alvo em escala logarítmica)*
 
-**Modelo XGBoost:**
+**XGBoost:**
 
-- R²: 0.88  
-- RMSE: 0.32 
-- MAE: 0.18  
-
-
----
-
-## ⚙️ 3. Pipeline de Produção
-
-O fluxo de predição foi estruturado da seguinte forma:
-
-1. Recebimento de dados brutos do usuário  
-2. Aplicação do preprocessamento (`preprocessamento.pkl`)  
-3. Conversão para formato `DMatrix`  
-4. Predição com modelo XGBoost (`modelo_xgb.pkl`)  
-5. Aplicação da função `exp()` para retornar ao valor original  
+- R²: **0.88**  
+- RMSE: **0.32**  
+- MAE: **0.18**  
 
 ---
 
-## 🚀 4. Deploy com Streamlit
+## ⚙️ Pipeline de Produção
 
-A aplicação permite que o usuário insira os dados e visualize a previsão em tempo real.
+Fluxo de predição:
 
-Arquivo principal:
+1. Entrada de dados do usuário  
+2. Aplicação do preprocessamento  
+3. Conversão para `DMatrix`  
+4. Predição com XGBoost  
+5. Inversão da transformação log (`exp`)  
 
+---
+
+## 🚀 Deploy com Streamlit
+
+Aplicação interativa para previsão em tempo real.
+
+📄 Arquivo principal:  
 `main.py`
 
-### 🔄 Fluxo da aplicação
+### 🔄 Fluxo da aplicação:
 
-1. Usuário preenche formulário  
-2. Dados são enviados para a função de predição  
-3. Pipeline transforma os dados  
-4. Modelo realiza a previsão  
-5. Resultado é exibido ao usuário  
+1. Usuário insere os dados  
+2. Pipeline processa as informações  
+3. Modelo gera a previsão  
+4. Resultado é exibido na interface  
 
 ---
 
 
 ## ▶️ Como Executar o Projeto
 
-### 1. Clonar o repositório
+### 🐳 Opção 1 — Docker (Recomendado)
 
 ```bash
 git clone <url-do-repositorio>
 cd <nome-do-projeto>
 ```
 
-### 2. Instalar dependências
+### 2. Executar o Docker
+
+```bash
+docker build -t seguro-saude .
+docker run -p 8501:8501 seguro-saude
+```
+
+### Opção 2 — Execução Local
+
+```bash
+git clone <url-do-repositorio>
+cd <nome-do-projeto>
+```
+
+### 2. Executar Local
 
 ```bash
 pip install -r requirements.txt
-```
-
-### 3. Executar a aplicação
-
-```bash
 streamlit run main.py
 ```
+
 
 ---
 ## 🏗 Diferenciais Técnicos
 
-- Pipeline completo de ML (EDA → Modelagem → Deploy)  
-- Separação entre preprocessamento e modelo  
-- Uso de XGBoost com DMatrix  
-- Aplicação de transformação logarítmica  
-- Integração com Streamlit  
-- Comparação entre ambiente local e distribuído (Spark)  
+- Pipeline completo de Machine Learning (EDA → Modelagem → Deploy)  
+- Separação entre etapa de preprocessamento e modelo preditivo  
+- Uso de XGBoost com DMatrix para otimização de performance  
+- Aplicação de transformação logarítmica na variável alvo  
+- Deploy de aplicação interativa com Streamlit  
+- Implementação adicional com Spark (processamento distribuído)  
+- Ambiente reprodutível com Docker  
 
 ---
 
@@ -193,12 +205,14 @@ streamlit run main.py
 
 <div>
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white">
+  <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white">
   <img src="https://img.shields.io/badge/Scikit--Learn-F7931E?style=for-the-badge&logo=scikitlearn&logoColor=white">
+  <img src="https://img.shields.io/badge/XGBoost-EC6B23?style=for-the-badge">
   <img src="https://img.shields.io/badge/Apache_Spark-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white">
   <img src="https://img.shields.io/badge/PySpark-FF9900?style=for-the-badge">
   <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white">
-  <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white">
-  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white">
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
 </div>
 
 ---
